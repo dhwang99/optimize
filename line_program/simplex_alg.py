@@ -61,13 +61,20 @@ class Simplex:
         if max_mode:
             self.mat *= -1
 
+    '''
+    ax <= b
+    x >= 0
+    '''
+    def add_constraint(self, a, b):
+        self.mat = np.vstack((self.mat, [b] + a))
+
     def solve(self):
         '''
         松驰后的增广矩阵 [z C;b A] 
         '''
-        m,n = self.mat.shape
-        B = np.array(range(n-1, m+n-1))  #B0, 初始基的列编号
-        temp = np.vstack((np.zeros(m-1), np.eye(m-1)))  #第一行：z=c.T * x; 2 ..m:  m-1 维限制条件
+        cm,cn = self.mat.shape
+        B = np.array(range(cm-1, cm+cn-1))  #B0, 初始基的列编号
+        temp = np.vstack((np.zeros(cm-1), np.eye(cm-1)))  #第一行：z=c.T * x; 2 ..m:  m-1 维限制条件
         self.mat = np.hstack((self.mat, temp))
         m,n = self.mat.shape
         #判别数: C.T - Cb.T * B.inv * A, 
@@ -95,14 +102,13 @@ class Simplex:
 
         z = -1 * self.mat[0,0]
 
-        return z
+        sol=np.zeros(cn-1)
+        for i in range(len(B)):
+            if B[i] < cn:
+                sol[B[i]-1] = self.mat[i+1,0]
 
-    '''
-    ax <= b
-    x >= 0
-    '''
-    def add_constraint(self, a, b):
-        self.mat = np.vstack((self.mat, [b] + a))
+         
+        return z, sol
 
 
 '''
@@ -123,7 +129,7 @@ if __name__ == "__main__":
     t1.add_constraint([0,0,1], 3)
     t1.add_constraint([0,3,1], 6)
 
-    result = t1.solve()
+    result,sol = t1.solve()
     
     print "expect result -32; real result:", result
 

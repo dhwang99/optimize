@@ -26,5 +26,4 @@ A = matrix([[-1.0, -1.0, 0.0, 1.0],[1.0, -1.0, 1.0, -2.0]])
 
 sol = solvers.lp(c,A,b)
 
-pdb.set_trace()
 print sol['x']

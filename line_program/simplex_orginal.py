@@ -104,6 +104,8 @@ class Simplex:
 
         z = self.C_array.take(B) * self.cons_mat[:,-1]
 
+        pdb.set_trace()
+
         return z[0,0]
 
 
