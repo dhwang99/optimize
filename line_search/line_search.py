@@ -44,24 +44,22 @@ def bisection_search(f, def_field):
 
 
 #四等分
+#取中间3个点的最小值点。该点两边两个点为新的区间，最小值落在该区间里
+#如果有两个相同的最小值，则最小值就在这两个最小值点之间。算法适用
+
 def equal_interval_search(f, def_field):
-    steps = np.linspace(def_field[0], def_field[1], 5).tolist()
-    values = map(f, steps) 
+    steps = np.linspace(def_field[0], def_field[1], 5)
+    values = np.apply_along_axis(f, 0, steps)
 
     while True:
-        sid = 0 
-        if values[1] > values[3]:
-            sid = 1
-        
-        ssid = sid
-        if values[sid+1] > values[sid+2]:
-            ssid = ssid + 1
-
-        steps = np.linspace(steps[ssid], steps[ssid + 2], 5).tolist()
-        values = [values[ssid], f(steps[1]), values[ssid+1], f(steps[3]), values[ssid+2]]
+        min_id = values[1:4].argmin() + 1
+        steps = np.linspace(steps[min_id-1], steps[min_id+1], 5)
+        values = np.array([values[min_id-1], f(steps[1]), values[min_id], f(steps[3]), values[min_id+1]])
 
         if (steps[4] - steps[0]) < epsilon * 0.1:
             return steps[2], values[2]
+
+    return None
 
 
 if __name__ == "__main__":
