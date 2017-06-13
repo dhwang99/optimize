@@ -14,7 +14,7 @@ import numpy as np
 import pdb
 
 #二分法
-
+#x* = 0.63
 def f1(x):
     f = 8 * (x ** 3) - 2 * (x ** 2) - 7 * x + 3.0
     return f
@@ -165,7 +165,6 @@ def newton_method_search(x0, espilon):
         x_n = x_n_1 - np.dot(np.linalg.inv(H_f), deriv_f)
         x = x_n
         f_n = b.T * x + 1/2.0 * x.T * A * x 
-        pdb.set_trace()
 
         if np.abs(f_n - f_n_1) < espilon:
             return f_n, x_n
@@ -177,9 +176,57 @@ def newton_method_search(x0, espilon):
 
 
 #非精确搜索
-#多项式拟合法
+#多项式拟合法, 求出a,b,c三点
+#x0: 起始点，v: 梯度下降方向（负梯度单位方向）
+def quadratic_polynomial(f, x0, v):
+    a = 0.
+    fa = f(x0)
+    b=1.
+    fb = f(x0 + b*v)
+    c = 0.
+    fc = 0.
 
-#另一个方法()
+    st = 1.
+    
+    if fa > fb:
+        #c: the first point f(c) > f(b)
+        # lambda = 2, 4,8,...,a,b,c
+        while True:
+            c = b + st
+            fc = f(x0 + c*v)
+            if fc >= fb:
+                break
+
+            fa = fb
+            fb = fc
+            a = b
+            b = c
+            st *= 2.
+    else:
+        #a=0,b=lambda, c=2*lambda, lambda=1/2, 1/4, ...
+        c = b
+        fc = fb
+        while True:
+            st *= 1./2
+            b = a * st
+
+            fb = f(x0 + b*v)
+            if fb < fc:
+                break
+            fc = fb
+            c = b
+    
+    pdb.set_trace()
+    lambd = 1/2.0 * (fa*(c**2 - b**2) + fb*(a**2 - c**2) + fc*(b**2 - a**2))
+    lambd /= (fa*(c - b) + fb*(a - c) + fc*(b - a))
+
+    f_lamb = f(lambd)
+    if f_lamb < fb:
+        return lambd
+
+    return b
+
+
 
 if __name__ == "__main__":
     print "test"
@@ -204,6 +251,17 @@ if __name__ == "__main__":
     x0 = np.matrix('0.0;0.0') 
     rst = newton_method_search(x0, 0.01)
     dst_x = np.array([-1.0/14, -3.0/14])
-
+    
+    print "expect x:0.63"
     print "nr: dst:", dst_x
     print "nr: rst:", rst 
+
+    # x* = 0.63 
+    #rst: 0.52  
+    rst = quadratic_polynomial(f1, 0, 1)
+    print "quadratic_polynomial, expect x: 0.63, 0.52; real:", rst
+
+    # x* = 0.609
+    #rst: 0.531  
+    rst = quadratic_polynomial(f3, 1, 1)
+    print "quadratic_polynomial, expect x: 0.609, 0.531; real:", rst
