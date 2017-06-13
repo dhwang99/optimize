@@ -30,7 +30,7 @@ def f2(x):
 # for golden_section_search
 # x* = 1.609
 def f3(x):
-    f = np.exp(x) - 5x
+    f = np.exp(x) - 5*x
     return f
 
 #二分
@@ -92,15 +92,15 @@ def fibonacci_search(f, def_field, espilon):
     points = [def_field[0], def_field[1] - step, def_field[0] + step, def_field[1]]
     f_values = np.apply_along_axis(f, 0, points)
 
-    for i in range(fibid_n - 1, 2, -1):
+    for i in range(fidx_n-1, 1, -1):
         step = points[2] - points[1]
-        if f_values[1] < f_values[2]):
+        if f_values[1] < f_values[2]:
             min_point = 1
             points[3] = points[2]
             f_values[3] = f_values[2]
             points[2] = points[1]
             f_values[2] = f_values[1]
-            points[1] = points[2] - step
+            points[1] = points[0] + step
             f_values[1] = f(points[1])
         else:
             min_point = 2
@@ -108,9 +108,9 @@ def fibonacci_search(f, def_field, espilon):
             f_values[0] = f_values[1]
             points[1] = points[2]
             f_values[1] = f_values[2]
-            points[2] = points[1] + step
+            points[2] = points[3] - step
             f_values[2] = f(points[2])
-
+    
     dst_p = (points[2] + points[1]) / 2
 
     return (dst_p, f(dst_p))
@@ -123,10 +123,10 @@ def golden_section_search(f, def_field, espilon):
     points = [def_field[0], def_field[1] - step, def_field[0] + step, def_field[1]]
     f_values = np.apply_along_axis(f, 0, points)
 
-    while (step[2] - step[1]) > espilon:
+    while (points[2] - points[1]) > espilon:
         #step = (points[2] - points[1])
         step = (points[2] - points[0]) * (1 - golden_const)
-        if f_values[1] < f_values[2]):
+        if f_values[1] < f_values[2]:
             min_point = 1
             points[3] = points[2]
             f_values[3] = f_values[2]
@@ -150,20 +150,22 @@ def golden_section_search(f, def_field, espilon):
 #牛顿法. 要求有二阶导数
 #非区间搜索法。只要给到起始点，就可以下降(对凸函数是这样子)
 def newton_method_search(x0, espilon):
+    # f = 4*x1**2 + 2*x1*x2 + 2 * x2**2 + x1 + x2
     dst_x = np.array([-1.0/14, -3.0/14])
-    A = np.matrix('8,2;2,4')
-    b = np.matrix('1,1')
+    A = np.matrix('8.,2.;2.,4.')
+    b = np.matrix('1.;1.')
     x_n_1 = x0
     x = x0
     f_n_1 = b.T * x + 1/2.0 * x.T * A * x 
 
     while True:
         H_f = A
-        deriv_f = A * x
+        deriv_f = A * x_n_1 + b
 
         x_n = x_n_1 - np.dot(np.linalg.inv(H_f), deriv_f)
         x = x_n
         f_n = b.T * x + 1/2.0 * x.T * A * x 
+        pdb.set_trace()
 
         if np.abs(f_n - f_n_1) < espilon:
             return f_n, x_n
@@ -184,15 +186,24 @@ if __name__ == "__main__":
 
     # x* = 2.98
     def_field2 = [0, 10.0]
-    fr = fibonacci_search(f1, def_field2, 0.3)
-    
+    fr = fibonacci_search(f2, def_field2, 0.05)
+    print "fr: expect 2.98; real:", fr
+
     # x* = 1.609
     def_field3 = [1, 2.0]
-    gr = golden_section_search(f1, def_fd, 0.01)
+    gr = golden_section_search(f3, def_field3, 0.01)
+    print "gr: expect 1.609; real:", gr
 
     def_fd = [0.,1.]
     br = bisection_search(f1, def_fd, 0.1)
-    er = equal_interval_search(f1, def_fd, 0.1)
 
     print "br:", br
+    er = equal_interval_search(f1, def_fd, 0.1)
     print "er:", er
+
+    x0 = np.matrix('0.0;0.0') 
+    rst = newton_method_search(x0, 0.01)
+    dst_x = np.array([-1.0/14, -3.0/14])
+
+    print "nr: dst:", dst_x
+    print "nr: rst:", rst 
