@@ -22,7 +22,7 @@ import pdb
       df(xp + kAxp)/dk = A(xp + kAxp)*Axp = AxpAxp + kAAxpAxp 
                        = xp'AAxp + kxp'AAAxp 
 
-3. 共轭梯度
+3. 共轭梯度方向下降法
   (x, Ay) = 0, 称x,y为共轭向量 (正交是共轭的特殊形式，A为单位阵)
   3.1 找到n个共轭向量 ui
   3.2 沿共轭向量方向进行最优搜索, 得到每次搜索的最优步长列表 lbi
@@ -162,6 +162,7 @@ def conj_grandient_method_for_f2_direct():
 
 
 from line_search import newton_search_for_quad
+from newton_method import newton_search_for_quad 
 
 if __name__ == "__main__":
     print "test"

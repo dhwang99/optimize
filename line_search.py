@@ -164,32 +164,6 @@ def quad_value(f, x):
     return c + b.T * x + x.T * A * x
 
 
-'''
-牛顿法. 要求有二阶导数
-非区间搜索法。只要给到起始点，就可以下降(对凸函数是这样子)
-'''
-def newton_search_for_quad(f, x0, espilon):
-    c,b,A = f()
-    x_n_1 = x0
-    x = x0
-    f_n_1 = c + b.T * x + 1/2.0 * x.T * A * x 
-
-    while True:
-        H_f = A
-        deriv_f = A * x_n_1 + b
-
-        x_n = x_n_1 - np.dot(np.linalg.inv(H_f), deriv_f)
-        x = x_n
-        f_n = c + b.T * x + 1/2.0 * x.T * A * x 
-
-        if np.abs(f_n - f_n_1) < espilon:
-            return x_n, f_n
-
-        x_n_1 = x_n
-        f_n_1 = f_n
-
-    return None
-
 
 #非精确搜索
 #多项式拟合法, 求出a,b,c三点
@@ -243,10 +217,9 @@ def quadratic_polynomial(f, x0, v):
     return b
 
 
+from newton_method import newton_search_for_quad 
 
 if __name__ == "__main__":
-    print "test"
-
     # x* = 2.98
     def_field2 = [0, 10.0]
     fr = fibonacci_search(f2, def_field2, 0.05)
