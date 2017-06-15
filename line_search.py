@@ -116,12 +116,14 @@ def fibonacci_search(f, def_field, espilon):
     return (dst_p, f(dst_p))
 
 #黄金分割法
-def golden_section_search(f, def_field, espilon):
+def golden_section_search(f, def_field, espilon, args=None):
     golden_const = 0.618
 
     step = (def_field[1] - def_field[0]) * 0.618 
     points = [def_field[0], def_field[1] - step, def_field[0] + step, def_field[1]]
-    f_values = np.apply_along_axis(f, 0, points)
+    f_values = np.zeros(len(points))
+    for i in range(len(points)):
+        f_values[i] = f(points[i])
 
     while (points[2] - points[1]) > espilon:
         #step = (points[2] - points[1])
@@ -167,10 +169,10 @@ def quad_value(f, x):
 非区间搜索法。只要给到起始点，就可以下降(对凸函数是这样子)
 '''
 def newton_search_for_quad(f, x0, espilon):
-    c,b,A = f
+    c,b,A = f()
     x_n_1 = x0
     x = x0
-    f_n_1 = b.T * x + 1/2.0 * x.T * A * x 
+    f_n_1 = c + b.T * x + 1/2.0 * x.T * A * x 
 
     while True:
         H_f = A
@@ -178,10 +180,10 @@ def newton_search_for_quad(f, x0, espilon):
 
         x_n = x_n_1 - np.dot(np.linalg.inv(H_f), deriv_f)
         x = x_n
-        f_n = b.T * x + 1/2.0 * x.T * A * x 
+        f_n = c + b.T * x + 1/2.0 * x.T * A * x 
 
         if np.abs(f_n - f_n_1) < espilon:
-            return f_n, x_n
+            return x_n, f_n
 
         x_n_1 = x_n
         f_n_1 = f_n
@@ -230,7 +232,7 @@ def quadratic_polynomial(f, x0, v):
             fc = fb
             c = b
     
-    pdb.set_trace()
+    #pdb.set_trace()
     lambd = 1/2.0 * (fa*(c**2 - b**2) + fb*(a**2 - c**2) + fc*(b**2 - a**2))
     lambd /= (fa*(c - b) + fb*(a - c) + fc*(b - a))
 
