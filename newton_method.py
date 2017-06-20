@@ -53,10 +53,10 @@ def f4():
 
 算法大致如下：
 对原函数二阶tayler展开，然后用二次多项式近似：
-f(x) = f(x0) + f'(x)(x - x0) + 1/2(x-x0).T * H * (x - x0) + O((x-x0).T(x-x0))
-f_sim(x) = f(x0) + f'(x)(x - x0) + 1/2(x-x0).T * H * (x - x0)
-f_sim'(x) = f'(x) + H(x-x0) = 0
-x = x0 - H.inv * f'(x)
+f(x) = f(x0) + g(x)(x - x0) + 1/2(x-x0).T * H * (x - x0) + O((x-x0).T(x-x0))
+f_sim(x) = f(x0) + g(x)(x - x0) + 1/2(x-x0).T * H * (x - x0)
+f_sim'(x) = g(x) + H(x-x0) = 0
+x = x0 - H.inv * g(x)
 
 dk = -H.inv * f', 称为牛顿方向
 
@@ -117,21 +117,156 @@ s_k = D(k+1) * y_k
 '''
 
 '''
+Dk_1=Dk + deltaD
+dletaD = alpha * u * u.T + beta * v * v.T
+u = sk
+v = Dk*yk
+alpha = 1/(u.T * yk)
+beta = -1/(v.T * yk)
+deltaD = 1/(sk.T * yk) * sk * sk.T - 1/((Dk * yk).T * yk) * (Dk * yk).T * (Dk * yk) 
 '''
-def DFP(f, f_deriv, x0, espilon):
-    return None
 
+from line_search import golden_section_search 
+
+def DFP(f, f_deriv, x0, espilon):
+    x_k = x0
+    D_k = np.eye(x0.shape[0])
+    g_k = f_deriv(x0)
+
+    while True:
+        def_field = [-100., 100.]
+        d = -1. * D_k * g_k
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        x_k1 = x_k + k*d
+        g_k1 = f_deriv(x_k1)
+        
+        #pdb.set_trace()
+        g_sum = np.sum((g_k1.T * g_k1))
+        g_sum = np.sqrt(g_sum)
+        
+        if g_sum < espilon:
+            break
+
+        sk = x_k1 - x_k
+        yk = g_k1 - g_k
+
+        v =  sk
+        u = D_k * yk
+
+        alpha = 1. / (v.T * yk)[0,0] 
+        beta = -1. / (u.T * yk)[0,0]
+
+        delta_D = alpha * v * v.T + beta * u * u.T 
+        
+        #下一个点的D
+        D_k = D_k + delta_D
+        x_k = x_k1
+        g_k = g_k1
+
+    return x_k1, f(x_k1) 
+
+'''
+BFGS: 近似求H, 这样在计算下降方向时，需要求H的逆。求逆时会有优化方法. 而不是直接调用
+方法1: 求解线性方程组：dk = -Bk * gk ---> Bk * dk = -gk, 
+方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
+   np.linalg.inv(B_k)
+'''
 def BFGS(f, f_deriv, x0, espilon):
-    return None
+    x_k = x0
+    B_k = np.eye(x0.shape[0])
+    g_k = f_deriv(x0)
+
+    while True:
+        def_field = [-100., 100.]
+        #D_k = np.linalg.inv(B_k)
+        #d = -1. * D_k * g_k
+        d = np.linalg.solve(B_k, g_k)
+
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        x_k1 = x_k + k*d
+        g_k1 = f_deriv(x_k1)
+        
+        #pdb.set_trace()
+        g_sum = np.sum((g_k1.T * g_k1))
+        g_sum = np.sqrt(g_sum)
+        
+        if g_sum < espilon:
+            break
+
+        sk = x_k1 - x_k
+        yk = g_k1 - g_k
+
+        v = yk
+        u = B_k * sk
+
+        alpha = 1. / (v.T * sk)[0,0] 
+        beta = -1. / (u.T * sk)[0,0]
+
+        delta_B = alpha * v * v.T + beta * u * u.T 
+        
+        #下一个点的D
+        B_k = B_k + delta_B
+        x_k = x_k1
+        g_k = g_k1
+
+    return x_k1, f(x_k1) 
+'''
+方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
+'''
+def BFGS2(f, f_deriv, x0, espilon):
+    x_k = x0
+    B_k = np.eye(x0.shape[0])
+    D_k = np.linalg.inv(B_k)
+    g_k = f_deriv(x0)
+
+    while True:
+        def_field = [-100., 100.]
+        d = -1. * D_k * g_k
+
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        sk = k * d 
+        x_k1 = x_k + sk 
+        g_k1 = f_deriv(x_k1)
+        yk = g_k1 - g_k
+
+        g_sum = np.sqrt(np.sum((g_k1.T * g_k1)))
+        if g_sum < espilon:
+            break
+
+        #下一个点的D
+        I = np.eye(x0.shape[0])
+        ys = yk.T * sk
+        D_k1 = (I - sk * yk.T/ys) * D_k * (I - yk*sk.T/ys) + sk * sk.T/ys
+
+        D_k = D_k1
+        x_k = x_k1
+        g_k = g_k1
+
+    return x_k1, f(x_k1) 
 
 def L_BFGS(f, f_deriv, x0, espilon):
     return None
 
 if __name__ == "__main__":
     x0 = np.matrix('0.0;0.0') 
+    esplison = 0.005
+    c,b,A = f4()
+    dst_x = np.matrix(np.array([-1.0/14, -3.0/14]))
+
     rst = newton_search_for_quad(f4, x0, 0.01)
-    dst_x = np.array([-1.0/14, -3.0/14])
+
+    print "\nnr: dst:", dst_x
+    print "\nnr: rst:", rst 
+
+    f = lambda x:f_value(f4, x)
+    f_deriv = lambda x:(A*x + b)
+
+    dfp_rs = DFP(f, f_deriv, x0, esplison)
+    print "\ndfp rst:", dfp_rs 
+
+    bfgs_rs = BFGS(f, f_deriv, x0, esplison)
+    print "\nbfgs rst:", bfgs_rs 
+
+    bfgs2_rs = BFGS2(f, f_deriv, x0, esplison)
+    print "\nbfgs2 rst:", bfgs2_rs 
     
-    print "expect x:0.63"
-    print "nr: dst:", dst_x
-    print "nr: rst:", rst 
