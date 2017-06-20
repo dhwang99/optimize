@@ -4,6 +4,34 @@ import numpy as np
 import pdb
 
 '''
+求二次型函数在指定点的值
+其梯度值为： Gx + b 
+'''
+def f_value(f, x):
+    c,b,A = f()
+    val = c + b.T * x + 1./2.*x.T * A * x
+
+    return np.sum(val)
+
+'''
+对正定型二次函数，直接求解最优点
+Gx + b = 0
+x = -G.inv * b
+'''
+def solve_direct(f):
+    c,b,A = f()
+
+    eigs = np.linalg.eigvals(A)
+    less_zero = np.take(eigs,np.where(eigs < 0))
+    if less_zero.shape[1] > 0:
+        #非正定，不能求解。这个还需要确认下？
+        return None
+
+    x_star = -1. * np.linalg.inv(A) * b
+
+    return x_star, f_value(f, x_star) 
+
+'''
 牛顿法、拟牛顿法用在非线性优化上
 不过因为牛顿法、拟牛顿法在非线性优化上用得比较广，单独写一个文件
 包括:
@@ -85,9 +113,11 @@ y_k = B(k+1)*s_k
 或：
 s_k = D(k+1) * y_k
 
-即用梯度近似计算H或H的逆
+即用梯度近似计算H或H的逆.
 '''
 
+'''
+'''
 def DFP(f, f_deriv, x0, espilon):
     return None
 

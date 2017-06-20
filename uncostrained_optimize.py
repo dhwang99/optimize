@@ -35,11 +35,6 @@ import pdb
   对非二次函数，可以这样逼近最优解
 '''
 
-def f_value(f, x):
-    c,b,A = f()
-    val = c + b.T * x + 1./2.*x.T * A * x
-
-    return np.sum(val)
 
 '''
 f = 1/2(x1 * x1 + 2x2 * x2)
@@ -54,19 +49,9 @@ def f1():
 
     return (c, b, A)
 
-def solve_direct(f):
-    c,b,A = f()
-
-    eigs = np.linalg.eigvals(A)
-    less_zero = np.take(eigs,np.where(eigs < 0))
-    if less_zero.shape[1] > 0:
-        #非正定，不能求解。这个还需要确认下？
-        return None
-
-    x_star = -1. * np.linalg.inv(A) * b
-
-    return x_star, f_value(f, x_star) 
-    
+from newton_method import f_value
+from newton_method import solve_direct
+   
 def optimal_grandient_for_f1(f,x0, epsilon):  
     c,b,A = f()
     x = x0
@@ -74,6 +59,7 @@ def optimal_grandient_for_f1(f,x0, epsilon):
     AAA = A * A * A
     f_deriv = A * x
     while True:
+        #对纯二次函数，直接求解k的值，而不是用线性搜索方法。推导公式见上
         k = -1. * (x.T * AA * x) / (x.T * AAA * x)
         k = np.sum(k)
         x_n = x + k * f_deriv
