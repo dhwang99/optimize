@@ -13,30 +13,6 @@ def f_value(f, x):
 
     return np.sum(val)
 
-'''
-对正定型二次函数，直接求解最优点
-Gx + b = 0
-x = -G.inv * b
-'''
-def solve_direct(f):
-    c,b,A = f()
-
-    eigs = np.linalg.eigvals(A)
-    less_zero = np.take(eigs,np.where(eigs < 0))
-    if less_zero.shape[1] > 0:
-        #非正定，不能求解。这个还需要确认下？
-        return None
-
-    x_star = -1. * np.linalg.inv(A) * b
-
-    return x_star, f_value(f, x_star) 
-
-'''
-牛顿法、拟牛顿法用在非线性优化上
-不过因为牛顿法、拟牛顿法在非线性优化上用得比较广，单独写一个文件
-包括:
-'''
-
 def f4():
     # f = 4*x1**2 + 2*x1*x2 + 2 * x2**2 + x1 + x2
     # normal: f = c + b.T * x + 1/2 * x.T * A * x
@@ -46,6 +22,34 @@ def f4():
     A = np.matrix('8,2;2,4') 
 
     return c,b,A
+
+'''
+牛顿法、拟牛顿法用在非线性优化上
+不过因为牛顿法、拟牛顿法在非线性优化上用得比较广，单独写一个文件
+包括: 直接求解、牛顿法、dsp、bfgs, l-bfgs(稍晚点实现)
+'''
+
+'''
+对正定型二次型函数，直接求解最优点
+Gx + b = 0
+x = -G.inv * b
+Ax = -b, 求解x
+'''
+def solve_direct(f):
+    c,b,A = f()
+
+    eigs = np.linalg.eigvals(A)
+    less_zero = np.take(eigs, np.where(eigs < 0))
+    if less_zero.shape[1] > 0:
+        #非正定，不能求解。
+        return None
+
+    #x_star = -1. * np.linalg.inv(A) * b
+    # 不用求逆. 用求解线性方程线的方法求解： x=A.inv * b ==> Ax = -b 
+    x_star = np.linalg.solve(A, -b)
+
+    return x_star, f_value(f, x_star) 
+
 
 '''
 牛顿法. 要求f有二阶导数
@@ -171,7 +175,7 @@ BFGS: 近似求H, 这样在计算下降方向时，需要求H的逆。求逆时�
 方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
    np.linalg.inv(B_k)
 '''
-def BFGS(f, f_deriv, x0, espilon):
+def BFGS_simple(f, f_deriv, x0, espilon):
     x_k = x0
     B_k = np.eye(x0.shape[0])
     g_k = f_deriv(x0)
@@ -210,10 +214,12 @@ def BFGS(f, f_deriv, x0, espilon):
         g_k = g_k1
 
     return x_k1, f(x_k1) 
+
 '''
 方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
+该实现方法和原版算法书上的介绍不太一致，需要对一下
 '''
-def BFGS2(f, f_deriv, x0, espilon):
+def BFGS(f, f_deriv, x0, espilon):
     x_k = x0
     B_k = np.eye(x0.shape[0])
     D_k = np.linalg.inv(B_k)
@@ -235,8 +241,10 @@ def BFGS2(f, f_deriv, x0, espilon):
 
         #下一个点的D
         I = np.eye(x0.shape[0])
-        ys = yk.T * sk
-        D_k1 = (I - sk * yk.T/ys) * D_k * (I - yk*sk.T/ys) + sk * sk.T/ys
+        rho = 1./(yk.T * sk)[0,0] 
+        V = I - sk * yk.T * rho
+        #D_k1 = (I - rho * sk * yk.T) * D_k * (I - rho* yk*sk.T) + rho * sk * sk.T
+        D_k1 = V * D_k * V.T + rho * sk * sk.T #与上式等价
 
         D_k = D_k1
         x_k = x_k1
@@ -244,6 +252,9 @@ def BFGS2(f, f_deriv, x0, espilon):
 
     return x_k1, f(x_k1) 
 
+'''
+
+'''
 def L_BFGS(f, f_deriv, x0, espilon):
     return None
 
@@ -252,10 +263,13 @@ if __name__ == "__main__":
     esplison = 0.005
     c,b,A = f4()
     dst_x = np.matrix(np.array([-1.0/14, -3.0/14]))
+    print "\nnr: dst:", dst_x
+
+    dr = solve_direct(f4)
+    print "\ndr: rst:", dr
 
     rst = newton_search_for_quad(f4, x0, 0.01)
 
-    print "\nnr: dst:", dst_x
     print "\nnr: rst:", rst 
 
     f = lambda x:f_value(f4, x)
@@ -264,9 +278,9 @@ if __name__ == "__main__":
     dfp_rs = DFP(f, f_deriv, x0, esplison)
     print "\ndfp rst:", dfp_rs 
 
-    bfgs_rs = BFGS(f, f_deriv, x0, esplison)
+    bfgs_rs = BFGS_simple(f, f_deriv, x0, esplison)
     print "\nbfgs rst:", bfgs_rs 
 
-    bfgs2_rs = BFGS2(f, f_deriv, x0, esplison)
-    print "\nbfgs2 rst:", bfgs2_rs 
+    bfgs2_rs = BFGS(f, f_deriv, x0, esplison)
+    print "\nbfgs rst:", bfgs2_rs 
     
