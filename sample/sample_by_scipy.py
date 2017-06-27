@@ -23,5 +23,3 @@ res = linprog(c, A_ub=A, b_ub=b, A_eq=A_eq, b_eq=b_eq, bounds=(x0_bounds, x1_bou
 
 pdb.set_trace()
 print res
-
-
