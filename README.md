@@ -9,15 +9,21 @@
 >    [line_program](line_program)
 
 #### 2. 线搜索法(line search)
+>    实现了二等分、四等分、fibonacci搜索、黄金分割等精确搜索法
+>
+>    实现了二次多项式拟合等非精确搜索
+>
 >    [line_search](line_search)
 
 #### 3. 无约束优化(uncostrained optimize)
->    实现了几个无约束优化的算法。包括
+>    实现了几个无约束优化的算法。包括 最优梯度、共轭方向法(Fletcher_Reeves_conj, powell_conj, 已知共轭方向的二次多项式直接求解)
+     此外还有共轭方向、二次多项式直接求解的例子
 
 >    [uncostrained_optimize.py](uncostrained_optimize.py)
 
 #### 4. 牛顿法、拟牛顿法(newton_method)
 >    实现了几个无约束优化的算法。包括 newton_method, DFP, bfgs, l-bfgs(没有实现)
+>    正定二次型直接求解也丢到这里了(solve_direct)
 
 >    [newton_method.py](newton_method.py)
 
@@ -25,9 +31,23 @@
 >    实现了几个无约束优化的算法。包括
 
 >    [costrained_optimize.py](costrained_optimize.py)
+>    包括几个原理性的程序，如 lagrange 等式、不等式优化, kkt 条件(不等式)
+
+>    基于梯度的算法：hemstitching, combined_direction,  可行方向法
+
+>    罚函数法(外点法)
+
+>    内点法(未实现)
     
 
 #### 6. 外部库写的小例子
 >    调用cvxopt,scipy实现的线性规划示例和非线性优化示例
 
 >    [sample](sample)
+
+####  6. 待补充内容
+>    1. 线性搜索wolf条件
+>    2. lagrange对偶问题
+>    3. 共轭梯度&共轭方向的区别？
+>    4. 在线梯度下降法
+
