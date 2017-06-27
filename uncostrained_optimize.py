@@ -258,6 +258,7 @@ def powell_conj():
     return x_star, f_value(f_powell, x_star)
 
 from line_search import newton_search_for_quad
+
 from newton_method import newton_search_for_quad 
 
 if __name__ == "__main__":

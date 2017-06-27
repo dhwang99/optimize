@@ -4,7 +4,7 @@ import pdb
 
 '''
 c = [-1., 4]
-minimize z = c.T * x
+minimize c.T * x
 s.t. [-3., 1].T * x <= 6
      [1,2.].T * x <= 4
      x[1] + x[2] = 10

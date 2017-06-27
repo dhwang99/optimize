@@ -28,9 +28,8 @@
 >    [newton_method.py](newton_method.py)
 
 #### 5. 约束优化(constrained optimized)
->    实现了几个无约束优化的算法。包括
+>    实现了几个无约束优化的算法。
 
->    [costrained_optimize.py](costrained_optimize.py)
 >    包括几个原理性的程序，如 lagrange 等式、不等式优化, kkt 条件(不等式)
 
 >    基于梯度的算法：hemstitching, combined_direction,  可行方向法
@@ -39,6 +38,7 @@
 
 >    内点法(未实现)
     
+>    [costrained_optimize.py](costrained_optimize.py)
 
 #### 6. 外部库写的小例子
 >    调用cvxopt,scipy实现的线性规划示例和非线性优化示例
