@@ -29,7 +29,7 @@
 #### 5. 共轭方向、共轭梯度法(newton_method)
 >    包括 共轭方向法(Fletcher_Reeves_conj, powell_conj, 已知共轭方向的二次多项式直接求解)
 
->    [newton_method.py](newton_method.py)
+>    [conj_method.py](conj_method.py)
 
 #### 6. 约束优化(constrained optimized)
 >    实现了几个无约束优化的算法。
