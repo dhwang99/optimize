@@ -15,19 +15,23 @@
 >
 >    [line_search](line_search)
 
-#### 3. 无约束优化(uncostrained optimize)
->    实现了几个无约束优化的算法。包括 最优梯度、共轭方向法(Fletcher_Reeves_conj, powell_conj, 已知共轭方向的二次多项式直接求解)
-     此外还有共轭方向、二次多项式直接求解的例子
-
->    [uncostrained_optimize.py](uncostrained_optimize.py)
-
-#### 4. 牛顿法、拟牛顿法(newton_method)
+#### 3. 牛顿法、拟牛顿法(newton_method)
 >    实现了几个无约束优化的算法。包括 newton_method, DFP, bfgs, l-bfgs(没有实现)
 >    正定二次型直接求解也丢到这里了(solve_direct)
 
 >    [newton_method.py](newton_method.py)
 
-#### 5. 约束优化(constrained optimized)
+#### 4. 最优梯度法(optimal_grandient)
+>    实现了最优梯度, 二次多项式直接求解等
+
+>    [optimal_grandient.py](optimal_grandient.py)
+
+#### 5. 共轭方向、共轭梯度法(newton_method)
+>    包括 共轭方向法(Fletcher_Reeves_conj, powell_conj, 已知共轭方向的二次多项式直接求解)
+
+>    [newton_method.py](newton_method.py)
+
+#### 6. 约束优化(constrained optimized)
 >    实现了几个无约束优化的算法。
 
 >    包括几个原理性的程序，如 lagrange 等式、不等式优化, kkt 条件(不等式)
@@ -40,14 +44,14 @@
     
 >    [costrained_optimize.py](costrained_optimize.py)
 
-#### 6. 外部库写的小例子
+#### 7. 外部库写的小例子
 >    调用cvxopt,scipy实现的线性规划示例和非线性优化示例
 
 >    [sample](sample)
 
-####  6. 待补充内容
+#### 8. 待补充内容
 >    1. 线性搜索wolf条件
 >    2. lagrange对偶问题
 >    3. 共轭梯度&共轭方向的区别？
 >    4. 在线梯度下降法
-
+>    5. 随机算法：模拟退火、遗传算法
