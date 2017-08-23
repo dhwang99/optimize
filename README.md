@@ -32,7 +32,7 @@
 >    [conj_method.py](conj_method.py)
 
 #### 6. 约束优化(constrained optimized)
->    实现了几个无约束优化的算法。
+>    实现了几个约束优化的算法。
 
 >    包括几个原理性的程序，如 lagrange 等式、不等式优化, kkt 条件(不等式)
 
