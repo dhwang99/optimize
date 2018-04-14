@@ -18,14 +18,11 @@ import pdb
 
 2. 共轭梯度法
    使用梯度函数构造共轭方向
-
 '''
-
 
 from newton_method import f_value
 from newton_method import solve_direct
-   
-    
+ 
 '''
 f = 1 + x1 -x2 + x1**2 + 2x2**2
 u1 = [1,0]
@@ -160,7 +157,7 @@ def f_powell():
    算法本身所需要的步数，并不比fletcher小
 
 2. 重复上述步骤，直到收敛 
-  留意下收敛条件：如 ||xi - xi_1|| < espilon, |fi - fi_1| < esplilon, max_steps
+  留意下收敛条件：如 ||xi - xi_1|| < epsilon, |fi - fi_1| < esplilon, max_steps
 
 
 这种产生共轭向量的方法，并没有推导，只有实现。最好去推一下

@@ -339,10 +339,24 @@ def fliable_direction_method(f_fun, x0, esplison):
     return None
 
 '''
-罚函数法
+罚函数法(内点法)
+1. 等式约束
+min x1^2 + x2^2
+s.t. x2 = 1
 
-内点法
+定义罚函数：
+P(x, K) = x1 ^2 + x2^2 + K * (x2-1)^2
+deriv(P) = [2x1, 2x2 + 2(x2-1)K] = 0
+x1 = 0
+x2 = 1. * K/(K+1)
 '''
+
+def penity_method_1(K):
+    x1 = 0.
+    x2 = 1.0 * K/(K+1)
+
+    return [x1,x2], x1*x1 + x2*x2
+
 
 if __name__ == "__main__":
     x_star = [1./2, 1./2]
@@ -419,4 +433,23 @@ if __name__ == "__main__":
     print "\ninequality_constrained_ fliable_direction_method:"
     print "\nexpect:", x_star
     print "\nreal:", rst
+
+    x_star = [0, 1]
+    print "\npenity_method for equal constrained. x_star:", x_star
+    
+    K=1
+    rst = penity_method_1(K)
+    print "rst for K:%s; rst: %s" % (K,  rst)
+
+    K=10
+    rst = penity_method_1(K)
+    print "rst for K:%s; rst: %s" % (K,  rst)
+    
+    K=100
+    rst = penity_method_1(K)
+    print "rst for K:%s; rst: %s" % (K,  rst)
+    
+    K=10000
+    rst = penity_method_1(K)
+    print "rst for K:%s; rst: %s" % (K,  rst)
 

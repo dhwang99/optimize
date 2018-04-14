@@ -74,7 +74,7 @@ H为海森矩阵, 要求是非奇异的
 H*dk = f'
 
 '''
-def newton_search_for_quad(f, x0, espilon):
+def newton_search_for_quad(f, x0, epsilon):
     c,b,A = f()
     x_n_1 = x0
     x = x0
@@ -88,7 +88,7 @@ def newton_search_for_quad(f, x0, espilon):
         x = x_n
         f_n = c + b.T * x + 1/2.0 * x.T * A * x 
 
-        if np.abs(f_n - f_n_1) < espilon:
+        if np.abs(f_n - f_n_1) < epsilon:
             return x_n, f_n
 
         x_n_1 = x_n
@@ -132,7 +132,7 @@ deltaD = 1/(sk.T * yk) * sk * sk.T - 1/((Dk * yk).T * yk) * (Dk * yk).T * (Dk * 
 
 from line_search import golden_section_search 
 
-def DFP(f, f_deriv, x0, espilon):
+def DFP(f, f_deriv, x0, epsilon):
     x_k = x0
     D_k = np.eye(x0.shape[0])
     g_k = f_deriv(x0)
@@ -140,7 +140,7 @@ def DFP(f, f_deriv, x0, espilon):
     while True:
         def_field = [-100., 100.]
         d = -1. * D_k * g_k
-        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, epsilon)
         x_k1 = x_k + k*d
         g_k1 = f_deriv(x_k1)
         
@@ -148,7 +148,7 @@ def DFP(f, f_deriv, x0, espilon):
         g_sum = np.sum((g_k1.T * g_k1))
         g_sum = np.sqrt(g_sum)
         
-        if g_sum < espilon:
+        if g_sum < epsilon:
             break
 
         sk = x_k1 - x_k
@@ -175,7 +175,7 @@ BFGS: 近似求H, 这样在计算下降方向时，需要求H的逆。求逆时�
 方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
    np.linalg.inv(B_k)
 '''
-def BFGS_simple(f, f_deriv, x0, espilon):
+def BFGS_simple(f, f_deriv, x0, epsilon):
     x_k = x0
     B_k = np.eye(x0.shape[0])
     g_k = f_deriv(x0)
@@ -186,7 +186,7 @@ def BFGS_simple(f, f_deriv, x0, espilon):
         #d = -1. * D_k * g_k
         d = np.linalg.solve(B_k, g_k)
 
-        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, epsilon)
         x_k1 = x_k + k*d
         g_k1 = f_deriv(x_k1)
         
@@ -194,7 +194,7 @@ def BFGS_simple(f, f_deriv, x0, espilon):
         g_sum = np.sum((g_k1.T * g_k1))
         g_sum = np.sqrt(g_sum)
         
-        if g_sum < espilon:
+        if g_sum < epsilon:
             break
 
         sk = x_k1 - x_k
@@ -219,7 +219,7 @@ def BFGS_simple(f, f_deriv, x0, espilon):
 方法2: B_k1.inv = (I - sk*yk.T/(yk.T *sk) Bk.inv (I - yk*sk.T/(yk.T*sk)) + sk*sk.T/(yk.T*sk)
 该实现方法和原版算法书上的介绍不太一致，需要对一下
 '''
-def BFGS(f, f_deriv, x0, espilon):
+def BFGS(f, f_deriv, x0, epsilon):
     x_k = x0
     B_k = np.eye(x0.shape[0])
     D_k = np.linalg.inv(B_k)
@@ -229,14 +229,14 @@ def BFGS(f, f_deriv, x0, espilon):
         def_field = [-100., 100.]
         d = -1. * D_k * g_k
 
-        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, espilon)
+        k,min_fk = golden_section_search(lambda k:f(x_k + k*d), def_field, epsilon)
         sk = k * d 
         x_k1 = x_k + sk 
         g_k1 = f_deriv(x_k1)
         yk = g_k1 - g_k
 
         g_sum = np.sqrt(np.sum((g_k1.T * g_k1)))
-        if g_sum < espilon:
+        if g_sum < epsilon:
             break
 
         #下一个点的D
@@ -255,7 +255,7 @@ def BFGS(f, f_deriv, x0, espilon):
 '''
 
 '''
-def L_BFGS(f, f_deriv, x0, espilon):
+def L_BFGS(f, f_deriv, x0, epsilon):
     return None
 
 if __name__ == "__main__":

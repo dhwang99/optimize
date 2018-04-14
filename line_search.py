@@ -83,9 +83,9 @@ fib_const_list = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, \
                   4807526976, 7778742049]
 
 #fibonacci搜索
-def fibonacci_search(f, def_field, espilon):
+def fibonacci_search(f, def_field, epsilon):
     fib_values = np.array(fib_const_list)  
-    num = (def_field[1] - def_field[0]) / espilon
+    num = (def_field[1] - def_field[0]) / epsilon
     fidx_n = np.where(fib_values >= num)[0][0]
     
     step = (def_field[1] - def_field[0]) * fib_values[fidx_n - 1] * 1.0/fib_values[fidx_n]
@@ -116,7 +116,7 @@ def fibonacci_search(f, def_field, espilon):
     return (dst_p, f(dst_p))
 
 #黄金分割法
-def golden_section_search(f, def_field, espilon, args=None):
+def golden_section_search(f, def_field, epsilon, args=None):
     golden_const = 0.618
 
     step = (def_field[1] - def_field[0]) * 0.618 
@@ -125,7 +125,7 @@ def golden_section_search(f, def_field, espilon, args=None):
     for i in range(len(points)):
         f_values[i] = f(points[i])
 
-    while (points[2] - points[1]) > espilon:
+    while (points[2] - points[1]) > epsilon:
         #step = (points[2] - points[1])
         step = (points[2] - points[0]) * (1 - golden_const)
         if f_values[1] < f_values[2]:
